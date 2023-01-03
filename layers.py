@@ -21,7 +21,7 @@ class linear(nn.Module):
         return self.mlp(x)
 
 
-class gcn(nn.Module): # 进行GCN
+class gcn(nn.Module): 
     def __init__(self,c_in,c_out):
         """
         :param c_in: input channels
