@@ -151,7 +151,6 @@ def main():
         testx = torch.Tensor(x).cuda()
         testx = testx.transpose(1,3) 
         with torch.no_grad(): 
-            # preds = engine.model(testx, testy[:,0,:,:]).transpose(1,3)
             preds = engine.model(testx).transpose(1,3)
         outputs.append(preds.squeeze()) 
 
