@@ -10,16 +10,16 @@ from engine import trainer
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--device',type=str,default='1',help='') # 训练显卡号
+parser.add_argument('--device',type=str,default='0',help='') # 训练显卡号
 parser.add_argument('--data',type=str,default='data/PEMS08',help='data path') # 数据地址
 parser.add_argument('--adjdata',type=str,default='data/PEMS08/adj_pems08.pkl',help='adj data path') # 路网邻接矩阵地址
 parser.add_argument('--in_dim',type=int,default=1,help='inputs dimension') # 输入维度
 parser.add_argument('--input_dim',type=int,default=1,help='')
 parser.add_argument('--num_nodes',type=int,default=170,help='')
 
-parser.add_argument('--batch_size',type=int,default=56,help='batch size') # 批量大小,默认64
+parser.add_argument('--batch_size',type=int,default=64,help='batch size') 
 
-parser.add_argument('--save',type=str,default='./garage/metr7',help='save path') # 模型保存地址
+parser.add_argument('--save',type=str,default='./garage/pems08',help='save path') # 模型保存地址
 
 parser.add_argument('--seq_length',type=int,default=12,help='') # 序列长度
 parser.add_argument('--nhid',type=int,default=64,help='') # 中间卷积设置的通道维度
@@ -27,20 +27,19 @@ parser.add_argument('--learning_rate',type=float,default=0.01,help='learning rat
 parser.add_argument('--weight_decay',type=float,default=0.0002,help='weight decay rate') # 权重衰减率
 parser.add_argument('--epochs',type=int,default=100,help='') # 原先默认值100
 parser.add_argument('--cl_decay_steps',type=int,default=2000,help='')# 2000
-parser.add_argument('--print_every',type=int,default=100,help='') # 隔多少个打印
+parser.add_argument('--print_every',type=int,default=100,help='')
 
-parser.add_argument('--expid',type=int,default=1,help='experiment id') # 实验id，这个设置得莫名其妙
-parser.add_argument('--blocks',type=int,default=2,help='experiment id')
-parser.add_argument('--layers',type=int,default=3,help='experiment id')
-parser.add_argument('--lr_decay_rate',type=int,default=0.6,help='experiment id')
-parser.add_argument('--lr_step_size',type=int,default=10,help='experiment id')
+parser.add_argument('--expid',type=int,default=1,help='experiment id') 
+parser.add_argument('--blocks',type=int,default=2,help=)
+parser.add_argument('--layers',type=int,default=3,help=)
+parser.add_argument('--lr_decay_rate',type=int,default=0.6,help=)
+parser.add_argument('--lr_step_size',type=int,default=10,help=)
 
 parser.add_argument('--seq_len',type=int,default=12,help='')
 parser.add_argument('--output_dim',type=int,default=1,help='')
 parser.add_argument('--horizon',type=int,default=12,help='')
 parser.add_argument('--rnn_units',type=int,default=64,help='')
 parser.add_argument('--num_rnn_blocks',type=int,default=2,help='')
-
 
 args = parser.parse_args()
 
@@ -56,8 +55,7 @@ def setup_seed(seed):
     torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU，为所有GPU设置随机种子
     # torch.backends.cudnn.benchmark = False
     # torch.backends.cudnn.deterministic = True # 上面两句是设置cuDNN
-seed = 530302
-print("随机种子数seed:", seed)
+seed = 1
 setup_seed(seed)  # 设置随机数种子
 
 def main():
@@ -66,12 +64,6 @@ def main():
     adj_mx, Ae, M = util.load_adj(args.adjdata) # 读取邻接矩阵
     # 得到 传感器id，传感器id对应编号字典，处理后的邻接矩阵
     dataloader = util.load_dataset(args.data, args.batch_size, args.batch_size, args.batch_size) # 读取数据
-    '''''
-    dataloader['train_loader'] # 训练数据加载
-    dataloader['val_loader'] # 验证数据加载
-    dataloader['test_loader'] # 测试数据加载
-    dataloader['scaler'] = scaler # 传了一个类？
-    '''''
     scaler = dataloader['scaler'] # 数据标准化的类
     supports = [adj_mx.cuda()] # 将矩阵转化为tensor形式并放到GPU上
     supports = supports + [Ae.cuda()]  # 将矩阵转化为tensor形式并放到GPU上
@@ -82,7 +74,7 @@ def main():
 
     engine = trainer(args, scaler, supports, M)
 
-    print("start training...",flush=True) # flush=True就是将这个东西及时输出
+    print("start training...",flush=True)
     his_loss =[]
     val_time = []
     train_time = []
@@ -115,7 +107,7 @@ def main():
         t2 = time.time()
         train_time.append(t2-t1)
     
-        engine.scheduler.step()  # 学习率衰减 ##修改过
+        engine.scheduler.step()  # 学习率衰减 
     
         #验证
         valid_loss = []
